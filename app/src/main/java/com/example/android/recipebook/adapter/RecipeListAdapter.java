@@ -1,6 +1,9 @@
 package com.example.android.recipebook.adapter;
 
 import android.content.Context;
+import android.databinding.BindingAdapter;
+import android.databinding.DataBindingUtil;
+import android.databinding.ViewDataBinding;
 import android.graphics.Bitmap;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
@@ -12,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.android.recipebook.BR;
 import com.example.android.recipebook.R;
 import com.example.android.recipebook.model.Recipe;
 import com.example.android.recipebook.model.Step;
@@ -49,38 +53,29 @@ public class RecipeListAdapter extends RecyclerView.Adapter<RecipeListAdapter.Re
     @Override
     public void onBindViewHolder(RecipeViewHolder holder, int position) {
         if(mRecipes != null){
-            holder.mRecipeNameTextView.setText(mRecipes.get(position).getName());
-            holder.mDiningCount.setText(String.valueOf(mRecipes.get(position).getServings()));
-            if(mRecipes.get(position).getImage() != null && mRecipes.get(position).getImage().length() > 1){
-                GlideApp.with(mContex).load(Uri.parse(mRecipes.get(position).getImage())).placeholder(R.drawable.recipe_place_holder).into(holder.mRecipeImageView);
-            }else{
-                Step step = mRecipes.get(position).getSteps().get(mRecipes.get(position).getSteps().size() - 1);
-                String imageUrl = step.getVideoURL();
-                try {
-                    GlideApp.with(mContex).load(new VideoThumbnailUrl(imageUrl)).placeholder(R.drawable.recipe_place_holder).into(holder.mRecipeImageView);
-                } catch (Throwable throwable) {
-                    throwable.printStackTrace();
-                }
-            }
+            holder.bindingView.setVariable(BR.recipe,mRecipes.get(position));
+            Step step = mRecipes.get(position).getSteps().get(mRecipes.get(position).getSteps().size() - 1);
+            holder.bindingView.setVariable(BR.step,step);
+            holder.bindingView.executePendingBindings();
         }
 
     }
-
+    @BindingAdapter("app:srcUrl")
+    public static void loadGridImage(ImageView image,String imageUrl){
+        GlideApp.with(image.getContext()).load(new VideoThumbnailUrl(imageUrl)).placeholder(R.drawable.recipe_place_holder).into(image);
+    }
     @Override
     public int getItemCount() {
         return (mRecipes != null && mRecipes.size() > 0) ? mRecipes.size() : 0;
     }
 
     public class RecipeViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
-        private ImageView mRecipeImageView;
-        private TextView mRecipeNameTextView;
-        private TextView mDiningCount;
+
+        private ViewDataBinding bindingView;
 
         public RecipeViewHolder(View itemView) {
             super(itemView);
-            mRecipeImageView = (ImageView) itemView.findViewById(R.id.iv_recipe);
-            mRecipeNameTextView = (TextView)itemView.findViewById(R.id.tv_recipe_name);
-            mDiningCount = (TextView)itemView.findViewById(R.id.tv_dining_count);
+            bindingView = DataBindingUtil.bind(itemView);
             itemView.setOnClickListener(this);
 
         }
@@ -92,13 +87,6 @@ public class RecipeListAdapter extends RecyclerView.Adapter<RecipeListAdapter.Re
     public void setData(ArrayList<Recipe> recipes){
         mRecipes = recipes;
         notifyDataSetChanged();
-    }
-    public static Bitmap retriveVideoFrameFromVideo(String videoPath)
-
-    {
-
-
-         return ThumbnailUtils.createVideoThumbnail(videoPath, MediaStore.Images.Thumbnails.MINI_KIND);
     }
 
 }

@@ -1,6 +1,8 @@
 package com.example.android.recipebook;
 
+import android.content.Context;
 import android.content.res.Configuration;
+import android.databinding.DataBindingUtil;
 import android.os.PersistableBundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
@@ -9,9 +11,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.recipebook.adapter.RecipeListAdapter;
+import com.example.android.recipebook.databinding.ActivityMainBinding;
 import com.example.android.recipebook.model.Recipe;
 import com.example.android.recipebook.util.RecipeLoader;
 import com.example.android.recipebook.util.RecipeUtil;
@@ -26,22 +34,33 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     private static final int PORTRAIT_SPAN = 1;
     private static final int LANDSCAPE_SPAN = 2;
+    private static final int TILE_OFFSET = 4;
     private RecipeListAdapter mRecipeListAdapter;
     private RecyclerView mRecipeListRecyclerView;
     private static final String TAG = MainActivity.class.getSimpleName();
     private ArrayList<Recipe> mRecipes = null;
     private static final String RECIPE_LIST = "recipelist";
+    private ProgressBar mRecipeListProgressBar;
+    private TextView mRecipeListErrorTextView;
+    private ActivityMainBinding mActivityMainBinding;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        mRecipeListRecyclerView = (RecyclerView)findViewById(R.id.rv_recipe_list);
+        //setContentView(R.layout.activity_main);
+        mActivityMainBinding = DataBindingUtil.setContentView(this,R.layout.activity_main);
+
+
+        mRecipeListRecyclerView = mActivityMainBinding.rvRecipeList;
+        mRecipeListProgressBar = mActivityMainBinding.pbRecipeList;
+        mRecipeListErrorTextView = mActivityMainBinding.tvRecipeListError;
+
         LoaderManager loaderManager = getSupportLoaderManager();
-        if (this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            mRecipeListRecyclerView.setLayoutManager(new GridLayoutManager(this, PORTRAIT_SPAN));
-        } else {
-            mRecipeListRecyclerView.setLayoutManager(new GridLayoutManager(this, LANDSCAPE_SPAN));
-        }
+
+        Log.d(TAG,"Tile span is " + getTileSpan(this));
+
+
+        mRecipeListRecyclerView.setLayoutManager(new GridLayoutManager(this, getTileSpan(this)));
         mRecipeListAdapter = new RecipeListAdapter(this,this);
         mRecipeListRecyclerView.setAdapter(mRecipeListAdapter);
         if(savedInstanceState != null && savedInstanceState.containsKey(RECIPE_LIST)){
@@ -55,24 +74,38 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             }
         }
     }
+    public int getTileSpan(Context context){
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        float deviceWidth = displayMetrics.widthPixels / displayMetrics.density;
+        deviceWidth = deviceWidth /100;
+        if(deviceWidth >= 6.00){
+            //Tablet
+            return (int)deviceWidth/TILE_OFFSET;
+        }else{
+            //Phone
+            return (int)deviceWidth/(TILE_OFFSET/2);
+        }
 
+    }
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList(RECIPE_LIST,mRecipes);
     }
 
-    public static void success(){
-
+    public void success(){
+        mRecipeListErrorTextView.setVisibility(View.INVISIBLE);
+        hideIndicator();
     }
-    public static void error(){
-
+    public void error(){
+        mRecipeListErrorTextView.setVisibility(View.VISIBLE);
+        hideIndicator();
     }
-    public static void showIndicator(){
-
+    public void showIndicator(){
+        mRecipeListProgressBar.setVisibility(View.VISIBLE);
     }
-    public static void hideIndicator(){
-
+    public void hideIndicator(){
+        mRecipeListProgressBar.setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -82,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             @Override
             protected void onStartLoading() {
                 super.onStartLoading();
+                showIndicator();
                 if(mRecipe != null){
                     deliverResult(mRecipe);
                 }else{
@@ -113,6 +147,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             Log.d(TAG , "Recipe list is " + data.size());
             mRecipeListAdapter.setData(data);
             mRecipes = data;
+            success();
+        }else{
+            error();
         }
 
     }
@@ -124,6 +161,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onClickRecipeItem(Recipe recipe) {
-
+        Toast.makeText(this, "Name is " + recipe.getName(), Toast.LENGTH_SHORT).show();
     }
 }
