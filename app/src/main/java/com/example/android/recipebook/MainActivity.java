@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     private static final int PORTRAIT_SPAN = 1;
     private static final int LANDSCAPE_SPAN = 2;
-    private static final int TILE_OFFSET = 4;
+    private static int TILE_OFFSET = 4;
     private RecipeListAdapter mRecipeListAdapter;
     private RecyclerView mRecipeListRecyclerView;
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -79,14 +79,25 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
         float deviceWidth = displayMetrics.widthPixels / displayMetrics.density;
         deviceWidth = deviceWidth /100;
-        if(deviceWidth >= 6.00){
-            //Tablet
-            return (int)deviceWidth/TILE_OFFSET;
-        }else{
-            //Phone
-            return (int)deviceWidth/(TILE_OFFSET/2);
-        }
+        Log.d(TAG,"Device width is " + deviceWidth);
 
+        switch(getResources().getConfiguration().orientation){
+            case Configuration.ORIENTATION_PORTRAIT:
+                if(deviceWidth >= 6.00){
+                    TILE_OFFSET = 2;
+                }else{
+                    TILE_OFFSET = 1;
+                }
+                break;
+            case Configuration.ORIENTATION_LANDSCAPE:
+                if(deviceWidth >= 8.00){
+                    TILE_OFFSET = 3;
+                }else{
+                    TILE_OFFSET = 2;
+                }
+                break;
+        }
+        return TILE_OFFSET;
     }
     @Override
     public void onSaveInstanceState(Bundle outState) {
