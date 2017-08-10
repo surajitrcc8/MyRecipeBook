@@ -6,7 +6,6 @@ import android.os.Parcelable;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
@@ -20,7 +19,7 @@ public class Recipe implements Parcelable {
     @SerializedName("name")
     private String name;
     @SerializedName("ingredients")
-    private ArrayList<Intent> ingredients;
+    private ArrayList<Ingredient> ingredients;
     @SerializedName("steps")
     private ArrayList<Step> steps;
     @SerializedName("servings")
@@ -29,7 +28,7 @@ public class Recipe implements Parcelable {
     private String image;
 
 
-    public Recipe(int id, String name, ArrayList<Intent> ingredients, ArrayList<Step> steps, int servings, String image) {
+    public Recipe(int id, String name, ArrayList<Ingredient> ingredients, ArrayList<Step> steps, int servings, String image) {
         this.id = id;
         this.name = name;
         this.ingredients = ingredients;
@@ -38,10 +37,35 @@ public class Recipe implements Parcelable {
         this.image = image;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public ArrayList<Ingredient> getIngredients() {
+        return ingredients;
+    }
+
+    public ArrayList<Step> getSteps() {
+        return steps;
+    }
+
+    public int getServings() {
+        return servings;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
     protected Recipe(Parcel in) {
         id = in.readInt();
         name = in.readString();
-        ingredients = in.createTypedArrayList(Intent.CREATOR);
+        ingredients = in.createTypedArrayList(Ingredient.CREATOR);
+        steps = in.createTypedArrayList(Step.CREATOR);
         servings = in.readInt();
         image = in.readString();
     }
@@ -58,30 +82,6 @@ public class Recipe implements Parcelable {
         }
     };
 
-    public int getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public ArrayList<Intent> getIngredients() {
-        return ingredients;
-    }
-
-    public ArrayList<Step> getSteps() {
-        return steps;
-    }
-
-    public int getServings() {
-        return servings;
-    }
-
-    public String getImage() {
-        return image;
-    }
-
     @Override
     public int describeContents() {
         return 0;
@@ -92,6 +92,7 @@ public class Recipe implements Parcelable {
         parcel.writeInt(id);
         parcel.writeString(name);
         parcel.writeTypedList(ingredients);
+        parcel.writeTypedList(steps);
         parcel.writeInt(servings);
         parcel.writeString(image);
     }

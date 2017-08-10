@@ -1,6 +1,7 @@
 package com.example.android.recipebook;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.databinding.DataBindingUtil;
 import android.os.PersistableBundle;
@@ -162,5 +163,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public void onClickRecipeItem(Recipe recipe) {
         Toast.makeText(this, "Name is " + recipe.getName(), Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(this,RecipeDetailsActivity.class);
+        intent.putExtra(getString(R.string.RECIPE),recipe);
+        startActivity(intent);
     }
 }
