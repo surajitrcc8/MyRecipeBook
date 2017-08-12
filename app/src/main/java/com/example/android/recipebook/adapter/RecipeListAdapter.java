@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.android.recipebook.BR;
 import com.example.android.recipebook.R;
 import com.example.android.recipebook.model.Recipe;
@@ -62,7 +63,8 @@ public class RecipeListAdapter extends RecyclerView.Adapter<RecipeListAdapter.Re
     }
     @BindingAdapter("app:srcUrl")
     public static void loadGridImage(ImageView image,String imageUrl){
-        GlideApp.with(image.getContext()).load(new VideoThumbnailUrl(imageUrl)).placeholder(R.drawable.recipe_place_holder).into(image);
+        Glide.with(image.getContext()).load(Uri.parse(imageUrl)).into(image);
+        //GlideApp.with(image.getContext()).load(new VideoThumbnailUrl(imageUrl)).placeholder(R.drawable.recipe_place_holder).into(image);
     }
     @Override
     public int getItemCount() {

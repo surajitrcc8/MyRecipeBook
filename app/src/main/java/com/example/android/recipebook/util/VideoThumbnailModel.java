@@ -21,7 +21,7 @@ import okhttp3.OkHttpClient;
 @GlideModule
 public class VideoThumbnailModel extends AppGlideModule {
 
-    OkHttpClient okHttpClient;
+    private static final int DEFAULT_DISK_CACHE_SIZE = 100 * 1024;
 
     @Override
     public void applyOptions(Context context, GlideBuilder builder) {
@@ -32,6 +32,6 @@ public class VideoThumbnailModel extends AppGlideModule {
     public void registerComponents(Context context, Glide glide, Registry registry) {
 
         //registry.replace(GlideUrl.class, InputStream.class, new OkHttpUrlLoader.Factory(okHttpClient));
-        registry.append(VideoThumbnailUrl.class,InputStream.class,new VideoThumbnailFactory());
+        //registry.append(VideoThumbnailUrl.class,InputStream.class,new VideoThumbnailFactory(context));
     }
 }

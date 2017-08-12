@@ -4,6 +4,12 @@
 
 
 
+    <string name="title_step_list">steps</string>
+    <string name="title_step_detail">step Detail</string>
+    <string name="pervious">Prev</string>
+    <string name="next">Next</string>
 
     <string name="RECIPE" translatable="false">recipe</string>
+    <string name="STEP" translatable="false">step</string>
+
 </resources>

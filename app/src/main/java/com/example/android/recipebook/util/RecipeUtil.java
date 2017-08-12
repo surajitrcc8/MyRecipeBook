@@ -1,6 +1,9 @@
 package com.example.android.recipebook.util;
 
 import android.content.Context;
+import android.content.res.Configuration;
+import android.util.DisplayMetrics;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,7 +14,8 @@ import java.io.InputStream;
 
 public class RecipeUtil {
 
-
+    private static final String TAG = RecipeUtil.class.getSimpleName();
+    private static int TILE_OFFSET = 4;
     public static String loadJSONFromAsset(Context context) {
         String json = null;
         try {
@@ -26,5 +30,29 @@ public class RecipeUtil {
             return null;
         }
         return json;
+    }
+    public static int getTileSpan(Context context){
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        float deviceWidth = displayMetrics.widthPixels / displayMetrics.density;
+        deviceWidth = deviceWidth /100;
+
+        Log.d(TAG,"Device width is " + deviceWidth);
+        switch(context.getResources().getConfiguration().orientation){
+            case Configuration.ORIENTATION_PORTRAIT:
+                if(deviceWidth >= 6.00){
+                    TILE_OFFSET = 2;
+                }else{
+                    TILE_OFFSET = 1;
+                }
+                break;
+            case Configuration.ORIENTATION_LANDSCAPE:
+                if(deviceWidth >= 8.00){
+                    TILE_OFFSET = 3;
+                }else{
+                    TILE_OFFSET = 2;
+                }
+                break;
+        }
+        return TILE_OFFSET;
     }
 }

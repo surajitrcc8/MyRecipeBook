@@ -21,7 +21,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".RecipeDetailsActivity"></activity>
+        <activity android:name=".StepListActivity" />
+        <activity
+            android:name="sample.stepListActivity"
+            android:label="@string/title_step_list"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name="sample.stepDetailActivity"
+            android:label="@string/title_step_detail"
+            android:parentActivityName="sample.stepListActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.android.recipebook.sample.stepListActivity" />
+        </activity>
+        <activity android:name=".StepDetailsActivity"></activity>
     </application>
 
 </manifest>

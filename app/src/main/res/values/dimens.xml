@@ -4,4 +4,12 @@
     <dimen name="dp10">10dp</dimen>
     <dimen name="dp20">20dp</dimen>
     <dimen name="dp42">42dp</dimen>
+    <dimen name="dp50">50dp</dimen>
+    <dimen name="dp250">250dp</dimen>
+
+
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="app_bar_height">200dp</dimen>
+    <dimen name="item_width">200dp</dimen>
+    <dimen name="text_margin">16dp</dimen>
 </resources>

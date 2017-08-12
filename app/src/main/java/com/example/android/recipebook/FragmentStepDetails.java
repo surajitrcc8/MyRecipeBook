@@ -1,0 +1,114 @@
+package com.example.android.recipebook;
+
+import android.app.Activity;
+import android.net.Uri;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.example.android.recipebook.model.Step;
+import com.google.android.exoplayer2.DefaultLoadControl;
+import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.LoadControl;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.util.Util;
+
+/**
+ * Created by surajitbiswas on 8/11/17.
+ */
+
+public class FragmentStepDetails extends Fragment {
+    private Bundle bundle;
+    private Step mStep;
+    private SimpleExoPlayerView mExoPlayerView;
+    private SimpleExoPlayer mExoPlayer;
+    private TextView mStepInstructionTextView;
+    private long playerPosition = 0;
+    private static final String TAG = FragmentStepDetails.class.getSimpleName();
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if(savedInstanceState == null) {
+            bundle = getArguments();
+        }else{
+            if(savedInstanceState.containsKey(getString(R.string.STEP))){
+                playerPosition = savedInstanceState.getLong(getString(R.string.STEP));
+                Log.d(TAG,"Player position is " + playerPosition);
+            }
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_step_details,container,false);
+        mExoPlayerView = (SimpleExoPlayerView)view.findViewById(R.id.exo_player_view);
+        mStepInstructionTextView = (TextView)view.findViewById(R.id.tv_step_instruction);
+        if(bundle != null &&bundle.getParcelable(getString(R.string.STEP)) != null){
+            mStep = bundle.getParcelable(getString(R.string.STEP));
+            initiateExoPlayer(Uri.parse(mStep.getVideoURL()));
+            mStepInstructionTextView.setText(mStep.getDescription());
+        }
+
+
+        return view;
+    }
+
+    private void initiateExoPlayer(Uri videoUri) {
+        if(videoUri != null){
+            Activity activity = this.getActivity();
+            // 1. Create a default TrackSelector
+
+
+            TrackSelector trackSelector =
+                    new DefaultTrackSelector();
+            LoadControl loadControl = new DefaultLoadControl();
+            mExoPlayer =  ExoPlayerFactory.newSimpleInstance(activity.getApplicationContext(),trackSelector,loadControl,null);
+            mExoPlayerView.setPlayer(mExoPlayer);
+
+            String userAgent = Util.getUserAgent(activity.getApplicationContext(),TAG);
+
+            MediaSource mediaSource = new ExtractorMediaSource(videoUri,new DefaultDataSourceFactory(activity.getApplicationContext(),userAgent)
+                    ,new DefaultExtractorsFactory(),null,null);
+            mExoPlayer.prepare(mediaSource);
+            if(playerPosition != 0){
+                mExoPlayer.seekTo(playerPosition);
+            }
+            mExoPlayer.setPlayWhenReady(true);
+
+        }
+
+    }
+    private void releaseExoPlayer(){
+        if(mExoPlayer != null) {
+            mExoPlayer.stop();
+            mExoPlayer.release();
+            mExoPlayer = null;
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        releaseExoPlayer();
+    }
+}

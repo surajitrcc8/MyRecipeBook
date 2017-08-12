@@ -1,10 +1,7 @@
 package com.example.android.recipebook;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.databinding.DataBindingUtil;
-import android.os.PersistableBundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -12,7 +9,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -35,7 +31,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     private static final int PORTRAIT_SPAN = 1;
     private static final int LANDSCAPE_SPAN = 2;
-    private static int TILE_OFFSET = 4;
     private RecipeListAdapter mRecipeListAdapter;
     private RecyclerView mRecipeListRecyclerView;
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -44,6 +39,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private ProgressBar mRecipeListProgressBar;
     private TextView mRecipeListErrorTextView;
     private ActivityMainBinding mActivityMainBinding;
+    private boolean isStop = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,13 +51,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         mRecipeListRecyclerView = mActivityMainBinding.rvRecipeList;
         mRecipeListProgressBar = mActivityMainBinding.pbRecipeList;
         mRecipeListErrorTextView = mActivityMainBinding.tvRecipeListError;
-
         LoaderManager loaderManager = getSupportLoaderManager();
 
-        Log.d(TAG,"Tile span is " + getTileSpan(this));
+        Log.d(TAG,"Tile span is " + RecipeUtil.getTileSpan(this));
 
-
-        mRecipeListRecyclerView.setLayoutManager(new GridLayoutManager(this, getTileSpan(this)));
+        mRecipeListRecyclerView.setLayoutManager(new GridLayoutManager(this, RecipeUtil.getTileSpan(this)));
         mRecipeListAdapter = new RecipeListAdapter(this,this);
         mRecipeListRecyclerView.setAdapter(mRecipeListAdapter);
         if(savedInstanceState != null && savedInstanceState.containsKey(RECIPE_LIST)){
@@ -75,30 +69,13 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             }
         }
     }
-    public int getTileSpan(Context context){
-        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-        float deviceWidth = displayMetrics.widthPixels / displayMetrics.density;
-        deviceWidth = deviceWidth /100;
-        Log.d(TAG,"Device width is " + deviceWidth);
 
-        switch(getResources().getConfiguration().orientation){
-            case Configuration.ORIENTATION_PORTRAIT:
-                if(deviceWidth >= 6.00){
-                    TILE_OFFSET = 2;
-                }else{
-                    TILE_OFFSET = 1;
-                }
-                break;
-            case Configuration.ORIENTATION_LANDSCAPE:
-                if(deviceWidth >= 8.00){
-                    TILE_OFFSET = 3;
-                }else{
-                    TILE_OFFSET = 2;
-                }
-                break;
-        }
-        return TILE_OFFSET;
+    @Override
+    protected void onStop() {
+        super.onStop();
+        isStop = true;
     }
+
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -147,6 +124,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             public void deliverResult(ArrayList<Recipe> data) {
                 super.deliverResult(data);
                 if(data != null){
+                    success();
                     mRecipe = data;
                 }
             }
@@ -174,7 +152,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public void onClickRecipeItem(Recipe recipe) {
         Toast.makeText(this, "Name is " + recipe.getName(), Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(this,RecipeDetailsActivity.class);
+        Intent intent = new Intent(this,StepListActivity.class);
         intent.putExtra(getString(R.string.RECIPE),recipe);
         startActivity(intent);
     }
