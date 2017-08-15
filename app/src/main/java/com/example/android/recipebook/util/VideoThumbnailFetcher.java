@@ -16,8 +16,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.HashMap;
 
-import wseemann.media.FFmpegMediaMetadataRetriever;
-
 /**
  * Created by surajitbiswas on 8/8/17.
  */
@@ -38,12 +36,11 @@ public class VideoThumbnailFetcher implements DataFetcher<InputStream> {
         Bitmap bitmap = null;
         try {
             mediaMetadataRetriever = new MediaMetadataRetriever();
-            //mediaMetadataRetriever = new FFmpegMediaMetadataRetriever();
             Log.d("Load data " , this.videoThumbnailUrl.url);
             mediaMetadataRetriever.setDataSource(this.videoThumbnailUrl.url, new HashMap<String, String>());
-            //mediaMetadataRetriever.setDataSource(mContext, Uri.parse(this.videoThumbnailUrl.url));
-            //bitmap = mediaMetadataRetriever.getFrameAtTime(1000000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
             bitmap = mediaMetadataRetriever.getFrameAtTime();
+        }catch (Exception e){
+            e.printStackTrace();
         }
         finally {
             if(mediaMetadataRetriever != null){

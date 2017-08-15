@@ -35,27 +35,16 @@ public class FragmentStepDetails extends Fragment {
     private SimpleExoPlayerView mExoPlayerView;
     private SimpleExoPlayer mExoPlayer;
     private TextView mStepInstructionTextView;
-    private long playerPosition = 0;
+    private static final String PLAYER_STATE = "playerstate";
     private static final String TAG = FragmentStepDetails.class.getSimpleName();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(savedInstanceState == null) {
-            bundle = getArguments();
-        }else{
-            if(savedInstanceState.containsKey(getString(R.string.STEP))){
-                playerPosition = savedInstanceState.getLong(getString(R.string.STEP));
-                Log.d(TAG,"Player position is " + playerPosition);
-            }
-        }
+        setRetainInstance(true);
+        bundle = getArguments();
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-    }
 
     @Nullable
     @Override
@@ -63,37 +52,53 @@ public class FragmentStepDetails extends Fragment {
         View view = inflater.inflate(R.layout.fragment_step_details,container,false);
         mExoPlayerView = (SimpleExoPlayerView)view.findViewById(R.id.exo_player_view);
         mStepInstructionTextView = (TextView)view.findViewById(R.id.tv_step_instruction);
-        if(bundle != null &&bundle.getParcelable(getString(R.string.STEP)) != null){
+        if(bundle != null && bundle.getParcelable(getString(R.string.STEP)) != null) {
             mStep = bundle.getParcelable(getString(R.string.STEP));
-            initiateExoPlayer(Uri.parse(mStep.getVideoURL()));
             mStepInstructionTextView.setText(mStep.getDescription());
+            //Check if this the first time we are creating this player view.
+            if(this.mExoPlayer == null){
+                initiateExoPlayer(Uri.parse(mStep.getVideoURL()));
+            }
+            else{
+                //Player already exists so add to view.
+                mExoPlayerView.setPlayer(mExoPlayer);
+                //Get the previous player state
+                if(savedInstanceState != null && savedInstanceState.containsKey(PLAYER_STATE))
+                mExoPlayer.setPlayWhenReady(savedInstanceState.getBoolean(PLAYER_STATE));
+            }
         }
-
 
         return view;
     }
 
-    private void initiateExoPlayer(Uri videoUri) {
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        //Store the current player state
+        outState.putBoolean(PLAYER_STATE,mExoPlayer.getPlayWhenReady());
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        this.mExoPlayer.setPlayWhenReady(false);
+    }
+
+
+    public void initiateExoPlayer(Uri videoUri) {
         if(videoUri != null){
             Activity activity = this.getActivity();
-            // 1. Create a default TrackSelector
-
-
             TrackSelector trackSelector =
                     new DefaultTrackSelector();
-            LoadControl loadControl = new DefaultLoadControl();
-            mExoPlayer =  ExoPlayerFactory.newSimpleInstance(activity.getApplicationContext(),trackSelector,loadControl,null);
-            mExoPlayerView.setPlayer(mExoPlayer);
+            this.mExoPlayer =  ExoPlayerFactory.newSimpleInstance(activity.getApplicationContext(),trackSelector);
+            this.mExoPlayerView.setPlayer(mExoPlayer);
 
             String userAgent = Util.getUserAgent(activity.getApplicationContext(),TAG);
 
             MediaSource mediaSource = new ExtractorMediaSource(videoUri,new DefaultDataSourceFactory(activity.getApplicationContext(),userAgent)
                     ,new DefaultExtractorsFactory(),null,null);
-            mExoPlayer.prepare(mediaSource);
-            if(playerPosition != 0){
-                mExoPlayer.seekTo(playerPosition);
-            }
-            mExoPlayer.setPlayWhenReady(true);
+            this.mExoPlayer.prepare(mediaSource);
+            this.mExoPlayer.setPlayWhenReady(true);
 
         }
 

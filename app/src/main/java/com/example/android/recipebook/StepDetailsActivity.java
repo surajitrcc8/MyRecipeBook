@@ -13,12 +13,15 @@ public class StepDetailsActivity extends AppCompatActivity {
 
         Bundle bundle = new Bundle();
         bundle.putParcelable(getString(R.string.STEP),getIntent().getParcelableExtra(getString(R.string.STEP)));
-        fragmentStepDetails = new FragmentStepDetails();
         FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentStepDetails.setArguments(bundle);
-        fragmentManager.beginTransaction()
-                .add(R.id.fragment_container,fragmentStepDetails)
-                .commit();
+        fragmentStepDetails = (FragmentStepDetails)fragmentManager.findFragmentByTag(getString(R.string.TAG_STEP_DETAILS_FRAGMENT));
+        if(fragmentStepDetails == null) {
+            fragmentStepDetails = new FragmentStepDetails();
+            fragmentStepDetails.setArguments(bundle);
+            fragmentManager.beginTransaction()
+                    .add(R.id.fragment_container, fragmentStepDetails, getString(R.string.TAG_STEP_DETAILS_FRAGMENT))
+                    .commit();
+        }
 
     }
 }

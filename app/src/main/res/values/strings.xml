@@ -11,5 +11,8 @@
 
     <string name="RECIPE" translatable="false">recipe</string>
     <string name="STEP" translatable="false">step</string>
+    <string name="TAG_STEP_DETAILS_FRAGMENT" translatable="false">FragmentStepDetails</string>
+
+
 
 </resources>

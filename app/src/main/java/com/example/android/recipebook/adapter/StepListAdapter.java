@@ -53,8 +53,9 @@ public class StepListAdapter extends RecyclerView.Adapter<StepListAdapter.StepVi
     }
     @BindingAdapter("app:srcUrl")
     public static void loadGridImage(ImageView image, String imageUrl){
-        Glide.with(image.getContext()).load(Uri.parse(imageUrl)).into(image);
-        //GlideApp.with(image.getContext()).load(new VideoThumbnailUrl(imageUrl)).placeholder(R.drawable.recipe_place_holder).error(R.drawable.recipe_place_holder).into(image);
+        if(imageUrl.length() > 2) {
+            GlideApp.with(image.getContext()).load(new VideoThumbnailUrl(imageUrl)).placeholder(R.drawable.recipe_place_holder).error(R.drawable.recipe_place_holder).into(image);
+        }
     }
     @Override
     public int getItemCount() {

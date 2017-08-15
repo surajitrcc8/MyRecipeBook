@@ -29,19 +29,20 @@ public class StepListActivity extends AppCompatActivity implements StepListAdapt
     private RecyclerView mStepListRecyclerView;
     private boolean isTwoPane = false;
     private FragmentStepDetails fragmentStepDetails;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_step_list);
-        mIngredientsTextView = (TextView)findViewById(R.id.tv_ingredients);
-        mStepListRecyclerView = (RecyclerView)findViewById(R.id.rv_step_list);
+        mIngredientsTextView = (TextView) findViewById(R.id.tv_ingredients);
+        mStepListRecyclerView = (RecyclerView) findViewById(R.id.rv_step_list);
         Intent intent = getIntent();
-        mRecipe = (Recipe)intent.getParcelableExtra(getString(R.string.RECIPE));
+        mRecipe = (Recipe) intent.getParcelableExtra(getString(R.string.RECIPE));
         prepareDetailsScreen(mRecipe);
-        if(findViewById(R.id.ll_container) != null){
+        if (findViewById(R.id.ll_container) != null) {
             isTwoPane = true;
             prepareTwoPaneActivity(null);
-        }else{
+        } else {
             isTwoPane = false;
         }
 
@@ -49,14 +50,18 @@ public class StepListActivity extends AppCompatActivity implements StepListAdapt
 
     private void prepareTwoPaneActivity(Step step) {
 
-            Bundle bundle = new Bundle();
-            bundle.putParcelable(getString(R.string.STEP), (step == null) ? mRecipe.getSteps().get(0) : step);
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(getString(R.string.STEP), (step == null) ? mRecipe.getSteps().get(0) : step);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentStepDetails = (FragmentStepDetails) fragmentManager.findFragmentByTag(getString(R.string.TAG_STEP_DETAILS_FRAGMENT));
+        if (fragmentStepDetails == null) {
             fragmentStepDetails = new FragmentStepDetails();
-            FragmentManager fragmentManager = getSupportFragmentManager();
             fragmentStepDetails.setArguments(bundle);
             fragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container,fragmentStepDetails)
+                    .add(R.id.fragment_container, fragmentStepDetails, getString(R.string.TAG_STEP_DETAILS_FRAGMENT))
                     .commit();
+        }
+
 
     }
 
@@ -64,7 +69,7 @@ public class StepListActivity extends AppCompatActivity implements StepListAdapt
         mIngredients = mRecipe.getIngredients();
         mGridLayoutManager = new GridLayoutManager(this, RecipeUtil.getTileSpan(this));
         StringBuilder sb = new StringBuilder();
-        for (Ingredient ingredient : mIngredients){
+        for (Ingredient ingredient : mIngredients) {
             String prefix = " ";
             sb.append(ingredient.getQuantity());
             sb.append(prefix);
@@ -75,7 +80,7 @@ public class StepListActivity extends AppCompatActivity implements StepListAdapt
 
         }
         //Delete the last comma
-        sb.deleteCharAt(sb.length()-2);
+        sb.deleteCharAt(sb.length() - 2);
         mStepListAdapter = new StepListAdapter(this);
         mStepListAdapter.setSteps(mRecipe.getSteps());
 
@@ -92,11 +97,14 @@ public class StepListActivity extends AppCompatActivity implements StepListAdapt
     @Override
     public void onStepItemClicked(Step step) {
         Toast.makeText(this, "shortDescription is " + step.getShortDescription(), Toast.LENGTH_SHORT).show();
-        if(!isTwoPane) {
+        if (!isTwoPane) {
             Intent intent = new Intent(this, StepDetailsActivity.class);
             intent.putExtra(getString(R.string.STEP), step);
             startActivity(intent);
-        }else{
+        } else {
+            getSupportFragmentManager().beginTransaction()
+                    .remove(fragmentStepDetails)
+                    .commit();
             prepareTwoPaneActivity(step);
         }
     }
