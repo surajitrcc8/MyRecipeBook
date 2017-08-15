@@ -1,16 +1,20 @@
 package com.example.android.recipebook;
 
 import android.content.Intent;
+import android.databinding.DataBindingUtil;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.recipebook.adapter.StepListAdapter;
 //import com.example.android.recipebook.databinding.ActivityRecipeDetailsBinding;
+import com.example.android.recipebook.databinding.ActivityStepListBindingSw600dpImpl;
 import com.example.android.recipebook.model.Ingredient;
 import com.example.android.recipebook.model.Recipe;
 import com.example.android.recipebook.model.Step;
@@ -22,7 +26,6 @@ public class StepListActivity extends AppCompatActivity implements StepListAdapt
 
     private Recipe mRecipe;
     private ArrayList<Ingredient> mIngredients;
-    //private ActivityRecipeDetailsBinding mActivityRecipeDetailsBinding;
     private GridLayoutManager mGridLayoutManager;
     private StepListAdapter mStepListAdapter;
     private TextView mIngredientsTextView;
@@ -83,12 +86,6 @@ public class StepListActivity extends AppCompatActivity implements StepListAdapt
         sb.deleteCharAt(sb.length() - 2);
         mStepListAdapter = new StepListAdapter(this);
         mStepListAdapter.setSteps(mRecipe.getSteps());
-
-
-//        mActivityRecipeDetailsBinding.tvIngredients.setText(sb);
-//        mActivityRecipeDetailsBinding.rvStepList.setLayoutManager(mGridLayoutManager);
-//        mActivityRecipeDetailsBinding.rvStepList.setAdapter(mStepListAdapter);
-
         mIngredientsTextView.setText(sb);
         mStepListRecyclerView.setLayoutManager(mGridLayoutManager);
         mStepListRecyclerView.setAdapter(mStepListAdapter);
@@ -102,10 +99,15 @@ public class StepListActivity extends AppCompatActivity implements StepListAdapt
             intent.putExtra(getString(R.string.STEP), step);
             startActivity(intent);
         } else {
-            getSupportFragmentManager().beginTransaction()
-                    .remove(fragmentStepDetails)
+            Bundle bundle = new Bundle();
+            bundle.putParcelable(getString(R.string.STEP), (step == null) ? mRecipe.getSteps().get(0) : step);
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            fragmentStepDetails = new FragmentStepDetails();
+            fragmentStepDetails.setArguments(bundle);
+            fragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, fragmentStepDetails, getString(R.string.TAG_STEP_DETAILS_FRAGMENT))
                     .commit();
-            prepareTwoPaneActivity(step);
+
         }
     }
 }

@@ -5,6 +5,8 @@ import android.content.res.Configuration;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
+import com.example.android.recipebook.R;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -54,5 +56,22 @@ public class RecipeUtil {
                 break;
         }
         return TILE_OFFSET;
+    }
+    public static boolean isPotraite(Context context){
+        return context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
+    }
+    public static boolean isTablet(Context context){
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        float deviceWidth = displayMetrics.widthPixels / displayMetrics.density;
+        if(deviceWidth < 600.00){
+            return false;
+        }else{
+            return true;
+        }
+    }
+    public static int convertToPixel(Context context, float dp){
+        final float scale = context.getResources().getDisplayMetrics().density;
+        int pixel = (int) (dp * scale + 0.5f);
+        return pixel;
     }
 }

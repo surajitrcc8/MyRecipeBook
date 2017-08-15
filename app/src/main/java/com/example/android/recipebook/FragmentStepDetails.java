@@ -1,17 +1,21 @@
 package com.example.android.recipebook;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.android.recipebook.model.Recipe;
 import com.example.android.recipebook.model.Step;
+import com.example.android.recipebook.util.RecipeUtil;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.LoadControl;
@@ -52,9 +56,30 @@ public class FragmentStepDetails extends Fragment {
         View view = inflater.inflate(R.layout.fragment_step_details,container,false);
         mExoPlayerView = (SimpleExoPlayerView)view.findViewById(R.id.exo_player_view);
         mStepInstructionTextView = (TextView)view.findViewById(R.id.tv_step_instruction);
+
+
+        if(!RecipeUtil.isTablet(getContext())) {
+            if (RecipeUtil.isPotraite(this.getContext())) {
+                mExoPlayerView.setMinimumHeight(RecipeUtil.convertToPixel(getContext(), getResources().getDimension(R.dimen.dp250)));
+            } else {
+                DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+                float height = displayMetrics.heightPixels / displayMetrics.density;
+                mExoPlayerView.setMinimumHeight(RecipeUtil.convertToPixel(getContext(), height));
+            }
+        }
+
         if(bundle != null && bundle.getParcelable(getString(R.string.STEP)) != null) {
             mStep = bundle.getParcelable(getString(R.string.STEP));
-            mStepInstructionTextView.setText(mStep.getDescription());
+
+            if(RecipeUtil.isTablet(getContext())){
+                mStepInstructionTextView.setText(mStep.getDescription());
+            }else{
+                if(RecipeUtil.isPotraite(this.getContext())){
+                    mStepInstructionTextView.setText(mStep.getDescription());
+                }
+            }
+
+
             //Check if this the first time we are creating this player view.
             if(this.mExoPlayer == null){
                 initiateExoPlayer(Uri.parse(mStep.getVideoURL()));

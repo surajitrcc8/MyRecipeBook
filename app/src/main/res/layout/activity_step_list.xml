@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--<layout >-->
-
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
@@ -24,7 +22,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/dp5"
-            tools:text="2 CUP Graham Cracker crumbs, 2 CUP Graham Cracker crumbs" />
+            tools:text="2 CUP Graham Cracker crumbs, 2 CUP Graham Cracker crumbs"/>
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_step_list"
@@ -32,4 +30,3 @@
             android:layout_height="match_parent"
             android:layout_marginTop="@dimen/dp20"></android.support.v7.widget.RecyclerView>
     </LinearLayout>
-<!--</layout>-->

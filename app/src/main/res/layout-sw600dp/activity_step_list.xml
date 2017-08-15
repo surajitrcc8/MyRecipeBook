@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><!--<layout >-->
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -50,4 +50,4 @@
         android:layout_gravity="center"
         tools:context="com.example.android.recipebook.StepDetailsActivity">
     </FrameLayout>
-</LinearLayout><!--</layout>-->
+</LinearLayout>
