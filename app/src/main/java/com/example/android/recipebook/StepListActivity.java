@@ -13,8 +13,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.recipebook.adapter.StepListAdapter;
-//import com.example.android.recipebook.databinding.ActivityRecipeDetailsBinding;
-import com.example.android.recipebook.databinding.ActivityStepListBindingSw600dpImpl;
 import com.example.android.recipebook.model.Ingredient;
 import com.example.android.recipebook.model.Recipe;
 import com.example.android.recipebook.model.Step;
@@ -92,11 +90,12 @@ public class StepListActivity extends AppCompatActivity implements StepListAdapt
     }
 
     @Override
-    public void onStepItemClicked(Step step) {
+    public void onStepItemClicked(Step step,int index) {
         Toast.makeText(this, "shortDescription is " + step.getShortDescription(), Toast.LENGTH_SHORT).show();
         if (!isTwoPane) {
             Intent intent = new Intent(this, StepDetailsActivity.class);
             intent.putExtra(getString(R.string.STEP), step);
+            intent.putParcelableArrayListExtra(getString(R.string.STEPS), mRecipe.getSteps());
             startActivity(intent);
         } else {
             Bundle bundle = new Bundle();

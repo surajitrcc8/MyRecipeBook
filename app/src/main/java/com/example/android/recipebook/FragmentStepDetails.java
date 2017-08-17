@@ -1,6 +1,7 @@
 package com.example.android.recipebook;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.android.recipebook.model.Recipe;
@@ -33,14 +35,25 @@ import com.google.android.exoplayer2.util.Util;
  * Created by surajitbiswas on 8/11/17.
  */
 
-public class FragmentStepDetails extends Fragment {
+public class FragmentStepDetails extends Fragment implements View.OnClickListener{
     private Bundle bundle;
     private Step mStep;
+    private int mStepLength;
     private SimpleExoPlayerView mExoPlayerView;
     private SimpleExoPlayer mExoPlayer;
     private TextView mStepInstructionTextView;
+    private Button mPreviousButton;
+    private Button mNextButton;
+
     private static final String PLAYER_STATE = "playerstate";
     private static final String TAG = FragmentStepDetails.class.getSimpleName();
+    private OnButtonClick onButtonClick = null;
+
+
+
+    public interface OnButtonClick{
+        public void onButtonClicked(View view);
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -49,6 +62,20 @@ public class FragmentStepDetails extends Fragment {
         bundle = getArguments();
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if(!RecipeUtil.isTablet(context)) {
+            onButtonClick = (OnButtonClick) context;
+            if (onButtonClick == null) {
+                try {
+                    throw new Exception("Please implement FragmentStepDetails.OnButtonClick");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
     @Nullable
     @Override
@@ -56,29 +83,36 @@ public class FragmentStepDetails extends Fragment {
         View view = inflater.inflate(R.layout.fragment_step_details,container,false);
         mExoPlayerView = (SimpleExoPlayerView)view.findViewById(R.id.exo_player_view);
         mStepInstructionTextView = (TextView)view.findViewById(R.id.tv_step_instruction);
-
-
-        if(!RecipeUtil.isTablet(getContext())) {
-            if (RecipeUtil.isPotraite(this.getContext())) {
-                mExoPlayerView.setMinimumHeight(RecipeUtil.convertToPixel(getContext(), getResources().getDimension(R.dimen.dp250)));
-            } else {
-                DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
-                float height = displayMetrics.heightPixels / displayMetrics.density;
-                mExoPlayerView.setMinimumHeight(RecipeUtil.convertToPixel(getContext(), height));
-            }
-        }
+        mPreviousButton = (Button)view.findViewById(R.id.b_prev);
+        mNextButton = (Button)view.findViewById(R.id.b_next);
 
         if(bundle != null && bundle.getParcelable(getString(R.string.STEP)) != null) {
             mStep = bundle.getParcelable(getString(R.string.STEP));
-
-            if(RecipeUtil.isTablet(getContext())){
+            mStepLength = bundle.getInt(getString(R.string.STEPS));
+            if(mStepInstructionTextView != null){
                 mStepInstructionTextView.setText(mStep.getDescription());
-            }else{
-                if(RecipeUtil.isPotraite(this.getContext())){
-                    mStepInstructionTextView.setText(mStep.getDescription());
-                }
             }
 
+            if(mPreviousButton != null && mNextButton != null) {
+                mPreviousButton.setOnClickListener(this);
+                mNextButton.setOnClickListener(this);
+                if(savedInstanceState != null && savedInstanceState.containsKey(getString(R.string.PREV_ENABLED))
+                        && savedInstanceState.containsKey(getString(R.string.NEXT_ENABLED))) {
+                    mPreviousButton.setEnabled(savedInstanceState.getBoolean(getString(R.string.PREV_ENABLED)));
+                    mNextButton.setEnabled(savedInstanceState.getBoolean(getString(R.string.NEXT_ENABLED)));
+                }else{
+                    if(mStep.getId() == 0){
+                        mPreviousButton.setEnabled(false);
+                        mNextButton.setEnabled(true);
+                    }else if(mStep.getId() <  (mStepLength -1)){
+                        mPreviousButton.setEnabled(true);
+                        mNextButton.setEnabled(true);
+                    }else{
+                        mPreviousButton.setEnabled(true);
+                        mNextButton.setEnabled(false);
+                    }
+                }
+            }
 
             //Check if this the first time we are creating this player view.
             if(this.mExoPlayer == null){
@@ -88,8 +122,9 @@ public class FragmentStepDetails extends Fragment {
                 //Player already exists so add to view.
                 mExoPlayerView.setPlayer(mExoPlayer);
                 //Get the previous player state
-                if(savedInstanceState != null && savedInstanceState.containsKey(PLAYER_STATE))
-                mExoPlayer.setPlayWhenReady(savedInstanceState.getBoolean(PLAYER_STATE));
+                if(savedInstanceState != null && savedInstanceState.containsKey(PLAYER_STATE)) {
+                    mExoPlayer.setPlayWhenReady(savedInstanceState.getBoolean(PLAYER_STATE));
+                }
             }
         }
 
@@ -101,6 +136,10 @@ public class FragmentStepDetails extends Fragment {
         super.onSaveInstanceState(outState);
         //Store the current player state
         outState.putBoolean(PLAYER_STATE,mExoPlayer.getPlayWhenReady());
+        if(mPreviousButton != null && mNextButton != null) {
+            outState.putBoolean(getString(R.string.PREV_ENABLED), mPreviousButton.isEnabled());
+            outState.putBoolean(getString(R.string.NEXT_ENABLED), mNextButton.isEnabled());
+        }
     }
 
     @Override
@@ -108,7 +147,11 @@ public class FragmentStepDetails extends Fragment {
         super.onStop();
         this.mExoPlayer.setPlayWhenReady(false);
     }
-
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        releaseExoPlayer();
+    }
 
     public void initiateExoPlayer(Uri videoUri) {
         if(videoUri != null){
@@ -118,15 +161,28 @@ public class FragmentStepDetails extends Fragment {
             this.mExoPlayer =  ExoPlayerFactory.newSimpleInstance(activity.getApplicationContext(),trackSelector);
             this.mExoPlayerView.setPlayer(mExoPlayer);
 
-            String userAgent = Util.getUserAgent(activity.getApplicationContext(),TAG);
-
-            MediaSource mediaSource = new ExtractorMediaSource(videoUri,new DefaultDataSourceFactory(activity.getApplicationContext(),userAgent)
-                    ,new DefaultExtractorsFactory(),null,null);
-            this.mExoPlayer.prepare(mediaSource);
-            this.mExoPlayer.setPlayWhenReady(true);
+            prepareAndPlayExoPlayer(videoUri);
 
         }
 
+    }
+    public void prepareAndPlayExoPlayer(Uri videoUri){
+        Activity activity = this.getActivity();
+        this.mExoPlayer.prepare(getMediaSource(activity,videoUri));
+        this.mExoPlayer.setPlayWhenReady(true);
+    }
+    public void showStepInstruction(String instruction, Bundle bundle){
+        this.bundle = bundle;
+        if(mStepInstructionTextView != null){
+            mStepInstructionTextView.setText(instruction);
+        }
+    }
+    public MediaSource getMediaSource(Activity activity, Uri videoUri){
+        String userAgent = Util.getUserAgent(activity.getApplicationContext(),TAG);
+
+        MediaSource mediaSource = new ExtractorMediaSource(videoUri,new DefaultDataSourceFactory(activity.getApplicationContext(),userAgent)
+                ,new DefaultExtractorsFactory(),null,null);
+        return mediaSource;
     }
     private void releaseExoPlayer(){
         if(mExoPlayer != null) {
@@ -136,9 +192,22 @@ public class FragmentStepDetails extends Fragment {
         }
     }
 
+    public void setEnableButton(int buttonName, boolean enabled){
+        switch(buttonName){
+            case R.string.previous:
+                if(mPreviousButton != null){
+                    mPreviousButton.setEnabled(enabled);
+                }
+                break;
+            case R.string.next:
+                if(mNextButton != null){
+                    mNextButton.setEnabled(enabled);
+                }
+                break;
+        }
+    }
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        releaseExoPlayer();
+    public void onClick(View view) {
+        onButtonClick.onButtonClicked(view);
     }
 }

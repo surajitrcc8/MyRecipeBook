@@ -32,14 +32,16 @@
         android:layout_gravity="bottom"
         android:layout_marginBottom="@dimen/dp10">
         <Button
+            android:id="@+id/b_prev"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/pervious"
+            android:text="@string/previous"
             android:enabled="false"/>
         <Button
+            android:id="@+id/b_next"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/next"
-            android:layout_gravity="end"/>
+            android:layout_gravity="end" />
     </FrameLayout>
 </FrameLayout>
