@@ -14,28 +14,30 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".StepListActivity" />
         <activity
-            android:name="sample.stepListActivity"
+            android:name=".StepListActivity"
             android:label="@string/title_step_list"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:launchMode="singleTop"
+            android:parentActivityName=".MainActivity">
+        <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value=".StepListActivity" />
+        </activity>
         <activity
-            android:name="sample.stepDetailActivity"
+            android:name=".StepDetailsActivity"
             android:label="@string/title_step_detail"
-            android:parentActivityName="sample.stepListActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:parentActivityName=".StepListActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.android.recipebook.sample.stepListActivity" />
+                android:value=".StepDetailsActivity" />
         </activity>
-        <activity android:name=".StepDetailsActivity" />
 
         <receiver android:name=".RecipeBookAppWidget">
             <intent-filter>

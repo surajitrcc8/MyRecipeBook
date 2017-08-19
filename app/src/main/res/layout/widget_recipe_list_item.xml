@@ -10,14 +10,14 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         tools:text="Pai"
-        style="@style/TextAppearance.AppCompat.Large"
-        android:layout_weight="6"/>
+        style="@style/TextAppearance.AppCompat.Headline"
+        android:layout_weight="1.5"/>
     <TextView
         android:id="@+id/tv_widget_recipe_servings"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        tools:text="8"
-        style="@style/TextAppearance.AppCompat.Large"
+        tools:text="6.0TBLSP"
+        style="@style/TextAppearance.AppCompat.Headline"
         android:layout_gravity="center_vertical|end"
         android:textAlignment="textEnd"
         android:paddingStart="@dimen/dp5"

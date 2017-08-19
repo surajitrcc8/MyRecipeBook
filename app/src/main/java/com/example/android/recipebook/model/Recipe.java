@@ -1,6 +1,5 @@
 package com.example.android.recipebook.model;
 
-import android.content.Intent;
 import android.os.Parcel;
 import android.os.Parcelable;
 

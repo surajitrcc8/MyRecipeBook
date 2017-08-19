@@ -3,7 +3,6 @@ package com.example.android.recipebook.util;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
-import android.net.Uri;
 import android.util.Log;
 
 import com.bumptech.glide.Priority;

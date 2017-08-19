@@ -14,6 +14,9 @@ import android.widget.RemoteViews;
  */
 public class RecipeBookAppWidget extends AppWidgetProvider {
     private static final String TAG = RecipeBookAppWidget.class.getSimpleName();
+    private static RemoteViews mListRemoteViews;
+    private static String mRecipeName;
+
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId) {
         // Construct the RemoteViews object
@@ -30,17 +33,24 @@ public class RecipeBookAppWidget extends AppWidgetProvider {
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views);
     }
-
+    public static void setWidgetRecipeName(String name,Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds){
+        mRecipeName = name;
+        mListRemoteViews.setTextViewText(R.id.tv_widget_recipe,mRecipeName);
+        for (int appWidgetId : appWidgetIds) {
+            appWidgetManager.updateAppWidget(appWidgetId, mListRemoteViews);
+        }
+    }
     private static RemoteViews getListWidget(Context context) {
-        RemoteViews views = new RemoteViews(context.getPackageName(),R.layout.widget_recipe_list_view);
+        mListRemoteViews = new RemoteViews(context.getPackageName(),R.layout.widget_recipe_list_view);
         Intent adapterIntent = new Intent(context,RecipeWidgetService.class);
-        views.setRemoteAdapter(R.id.lv_recipe_widget,adapterIntent);
+        mListRemoteViews.setRemoteAdapter(R.id.lv_recipe_widget,adapterIntent);
+        mListRemoteViews.setTextViewText(R.id.tv_widget_recipe,mRecipeName);
 
         Intent intent = new Intent(context,StepListActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(context,0,intent,PendingIntent.FLAG_UPDATE_CURRENT);
-        views.setPendingIntentTemplate(R.id.lv_recipe_widget,pendingIntent);
+        mListRemoteViews.setPendingIntentTemplate(R.id.lv_recipe_widget,pendingIntent);
 
-        return views;
+        return mListRemoteViews;
     }
 
     private static RemoteViews getSimpleWidget(Context context, AppWidgetManager appWidgetManager) {

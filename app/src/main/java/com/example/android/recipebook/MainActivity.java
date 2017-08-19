@@ -2,18 +2,20 @@ package com.example.android.recipebook;
 
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
+import android.support.test.espresso.IdlingResource;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.android.recipebook.adapter.RecipeListAdapter;
 import com.example.android.recipebook.databinding.ActivityMainBinding;
@@ -29,8 +31,6 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<ArrayList<Recipe>>,RecipeListAdapter.OnRecipeItemClicked {
 
 
-    private static final int PORTRAIT_SPAN = 1;
-    private static final int LANDSCAPE_SPAN = 2;
     private RecipeListAdapter mRecipeListAdapter;
     private RecyclerView mRecipeListRecyclerView;
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private TextView mRecipeListErrorTextView;
     private ActivityMainBinding mActivityMainBinding;
     private boolean isStop = false;
+    private SimpleIdleResource mSimpleIdleResource;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,18 +59,28 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         mRecipeListRecyclerView.setLayoutManager(new GridLayoutManager(this, RecipeUtil.getTileSpan(this)));
         mRecipeListAdapter = new RecipeListAdapter(this,this);
         mRecipeListRecyclerView.setAdapter(mRecipeListAdapter);
+        getIdlingResource();
         if(savedInstanceState != null && savedInstanceState.containsKey(RECIPE_LIST)){
             mRecipes = savedInstanceState.getParcelableArrayList(RECIPE_LIST);
             mRecipeListAdapter.setData(mRecipes);
         }else {
             if (loaderManager == null) {
+                mSimpleIdleResource.setIdleState(false);
                 loaderManager.initLoader(RecipeLoader.LOAD_RECIPE_LIST, null, this);
             } else {
+                mSimpleIdleResource.setIdleState(false);
                 loaderManager.restartLoader(RecipeLoader.LOAD_RECIPE_LIST, null, this);
             }
         }
     }
-
+    @VisibleForTesting
+    @NonNull
+    public IdlingResource getIdlingResource() {
+        if (mSimpleIdleResource == null) {
+            mSimpleIdleResource = new SimpleIdleResource();
+        }
+        return mSimpleIdleResource;
+    }
     @Override
     protected void onStop() {
         super.onStop();
@@ -138,6 +149,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             mRecipeListAdapter.setData(data);
             mRecipes = data;
             success();
+            mSimpleIdleResource.setIdleState(true);
         }else{
             error();
         }
@@ -151,7 +163,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onClickRecipeItem(Recipe recipe) {
-        Toast.makeText(this, "Name is " + recipe.getName(), Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(this,StepListActivity.class);
         intent.putExtra(getString(R.string.RECIPE),recipe);
         startActivity(intent);

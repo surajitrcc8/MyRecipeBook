@@ -1,16 +1,19 @@
 package com.example.android.recipebook;
 
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Intent;
-import android.databinding.DataBindingUtil;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AppCompatActivity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.View;
-import android.widget.FrameLayout;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.android.recipebook.adapter.StepListAdapter;
 import com.example.android.recipebook.model.Ingredient;
@@ -30,6 +33,7 @@ public class StepListActivity extends AppCompatActivity implements StepListAdapt
     private RecyclerView mStepListRecyclerView;
     private boolean isTwoPane = false;
     private FragmentStepDetails fragmentStepDetails;
+    private ActionBar mActionBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +43,11 @@ public class StepListActivity extends AppCompatActivity implements StepListAdapt
         mStepListRecyclerView = (RecyclerView) findViewById(R.id.rv_step_list);
         Intent intent = getIntent();
         mRecipe = (Recipe) intent.getParcelableExtra(getString(R.string.RECIPE));
+        mActionBar = getSupportActionBar();
+        if(mActionBar != null){
+            mActionBar.setDisplayHomeAsUpEnabled(true);
+            mActionBar.setTitle(mRecipe.getName());
+        }
         prepareDetailsScreen(mRecipe);
         if (findViewById(R.id.ll_container) != null) {
             isTwoPane = true;
@@ -48,7 +57,31 @@ public class StepListActivity extends AppCompatActivity implements StepListAdapt
         }
 
     }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.step_menu,menu);
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == android.R.id.home){
+            NavUtils.navigateUpFromSameTask(this);
+        }else if(item.getItemId() == R.id.menu_item_add_to_widget){
+            //Save the selected recipe to shared preference
+            SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.RECIPE),MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString(getString(R.string.RECIPE),mRecipe.getName());
+            editor.apply();
 
+            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
+            ComponentName componentName = new ComponentName(this,RecipeBookAppWidget.class);
+            int []appWidgetIds = appWidgetManager.getAppWidgetIds(componentName);
+            appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds,R.id.lv_recipe_widget);
+
+            RecipeBookAppWidget.setWidgetRecipeName(mRecipe.getName(),this,appWidgetManager,appWidgetIds);
+        }
+        return super.onOptionsItemSelected(item);
+    }
     private void prepareTwoPaneActivity(Step step) {
 
         Bundle bundle = new Bundle();
@@ -91,7 +124,6 @@ public class StepListActivity extends AppCompatActivity implements StepListAdapt
 
     @Override
     public void onStepItemClicked(Step step,int index) {
-        Toast.makeText(this, "shortDescription is " + step.getShortDescription(), Toast.LENGTH_SHORT).show();
         if (!isTwoPane) {
             Intent intent = new Intent(this, StepDetailsActivity.class);
             intent.putExtra(getString(R.string.STEP), step);

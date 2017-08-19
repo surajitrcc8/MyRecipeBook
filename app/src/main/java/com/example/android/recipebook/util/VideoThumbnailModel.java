@@ -9,7 +9,6 @@ import com.bumptech.glide.annotation.GlideModule;
 import com.bumptech.glide.module.AppGlideModule;
 import com.example.android.recipebook.model.VideoThumbnailUrl;
 
-
 import java.io.InputStream;
 
 

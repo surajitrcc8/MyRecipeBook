@@ -3,7 +3,6 @@ package com.example.android.recipebook.adapter;
 import android.databinding.BindingAdapter;
 import android.databinding.DataBindingUtil;
 import android.databinding.ViewDataBinding;
-import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,7 +11,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.databinding.library.baseAdapters.BR;
-import com.bumptech.glide.Glide;
 import com.example.android.recipebook.R;
 import com.example.android.recipebook.model.Step;
 import com.example.android.recipebook.model.VideoThumbnailUrl;

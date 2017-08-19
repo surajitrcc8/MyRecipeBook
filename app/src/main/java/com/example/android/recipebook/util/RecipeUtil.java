@@ -5,8 +5,6 @@ import android.content.res.Configuration;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
-import com.example.android.recipebook.R;
-
 import java.io.IOException;
 import java.io.InputStream;
 

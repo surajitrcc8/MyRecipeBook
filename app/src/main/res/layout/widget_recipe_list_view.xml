@@ -1,10 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary">
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp50">
+    <TextView
+        android:id="@+id/tv_widget_recipe"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="Yellow Cake"
+        android:layout_marginStart="@dimen/dp5"
+        android:layout_marginEnd="@dimen/dp5"
+        android:gravity="center_vertical"
+        style="@style/TextAppearance.AppCompat.Display1"
+        android:textColor="@android:color/white"
+        android:layout_gravity="center_vertical"
+        />
+    </FrameLayout>
     <ListView
         android:id="@+id/lv_recipe_widget"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/holo_orange_light"></ListView>
+        android:background="@android:color/white">
+
+    </ListView>
 </LinearLayout>

@@ -7,7 +7,7 @@
     <dimen name="dp50">50dp</dimen>
     <dimen name="dp200">200dp</dimen>
     <dimen name="dp250">250dp</dimen>
-    <dimen name="card_height">200dp</dimen>
+    <dimen name="card_height">150dp</dimen>
     <dimen name="video_height">300dp</dimen>
     <dimen name="dp300">300dp</dimen>
 
