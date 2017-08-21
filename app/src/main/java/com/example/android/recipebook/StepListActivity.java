@@ -31,7 +31,7 @@ public class StepListActivity extends AppCompatActivity implements StepListAdapt
     private StepListAdapter mStepListAdapter;
     private TextView mIngredientsTextView;
     private RecyclerView mStepListRecyclerView;
-    private boolean isTwoPane = false;
+    public boolean isTwoPane = false;
     private FragmentStepDetails fragmentStepDetails;
     private ActionBar mActionBar;
 
@@ -44,7 +44,7 @@ public class StepListActivity extends AppCompatActivity implements StepListAdapt
         Intent intent = getIntent();
         mRecipe = (Recipe) intent.getParcelableExtra(getString(R.string.RECIPE));
         mActionBar = getSupportActionBar();
-        if(mActionBar != null){
+        if(mActionBar != null && mRecipe!=null){
             mActionBar.setDisplayHomeAsUpEnabled(true);
             mActionBar.setTitle(mRecipe.getName());
         }
@@ -100,26 +100,28 @@ public class StepListActivity extends AppCompatActivity implements StepListAdapt
     }
 
     private void prepareDetailsScreen(Recipe mRecipe) {
-        mIngredients = mRecipe.getIngredients();
-        mGridLayoutManager = new GridLayoutManager(this, RecipeUtil.getTileSpan(this));
-        StringBuilder sb = new StringBuilder();
-        for (Ingredient ingredient : mIngredients) {
-            String prefix = " ";
-            sb.append(ingredient.getQuantity());
-            sb.append(prefix);
-            sb.append(ingredient.getMeasure());
-            sb.append(prefix);
-            sb.append(ingredient.getIngredient());
-            sb.append(", ");
+        if(mRecipe != null) {
+            mIngredients = mRecipe.getIngredients();
+            mGridLayoutManager = new GridLayoutManager(this, RecipeUtil.getTileSpan(this));
+            StringBuilder sb = new StringBuilder();
+            for (Ingredient ingredient : mIngredients) {
+                String prefix = " ";
+                sb.append(ingredient.getQuantity());
+                sb.append(prefix);
+                sb.append(ingredient.getMeasure());
+                sb.append(prefix);
+                sb.append(ingredient.getIngredient());
+                sb.append(", ");
 
+            }
+            //Delete the last comma
+            sb.deleteCharAt(sb.length() - 2);
+            mStepListAdapter = new StepListAdapter(this);
+            mStepListAdapter.setSteps(mRecipe.getSteps());
+            mIngredientsTextView.setText(sb);
+            mStepListRecyclerView.setLayoutManager(mGridLayoutManager);
+            mStepListRecyclerView.setAdapter(mStepListAdapter);
         }
-        //Delete the last comma
-        sb.deleteCharAt(sb.length() - 2);
-        mStepListAdapter = new StepListAdapter(this);
-        mStepListAdapter.setSteps(mRecipe.getSteps());
-        mIngredientsTextView.setText(sb);
-        mStepListRecyclerView.setLayoutManager(mGridLayoutManager);
-        mStepListRecyclerView.setAdapter(mStepListAdapter);
     }
 
     @Override
@@ -141,4 +143,6 @@ public class StepListActivity extends AppCompatActivity implements StepListAdapt
 
         }
     }
+
+
 }

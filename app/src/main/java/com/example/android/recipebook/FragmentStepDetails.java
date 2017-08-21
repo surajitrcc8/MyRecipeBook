@@ -79,6 +79,7 @@ public class FragmentStepDetails extends Fragment implements View.OnClickListene
         mStepInstructionTextView = (TextView)view.findViewById(R.id.tv_step_instruction);
         mPreviousButton = (Button)view.findViewById(R.id.b_prev);
         mNextButton = (Button)view.findViewById(R.id.b_next);
+        //mExoPlayerView.setDefaultArtwork(BitmapFactory.decodeResource(getResources(),R.drawable.no_image));
 
         if(bundle != null && bundle.getParcelable(getString(R.string.STEP)) != null) {
             mStep = bundle.getParcelable(getString(R.string.STEP));

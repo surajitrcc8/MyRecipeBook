@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.example.android.recipebook.adapter.RecipeListAdapter;
 import com.example.android.recipebook.databinding.ActivityMainBinding;
+import com.example.android.recipebook.model.Ingredient;
 import com.example.android.recipebook.model.Recipe;
 import com.example.android.recipebook.util.RecipeLoader;
 import com.example.android.recipebook.util.RecipeUtil;
@@ -64,12 +65,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             mRecipes = savedInstanceState.getParcelableArrayList(RECIPE_LIST);
             mRecipeListAdapter.setData(mRecipes);
         }else {
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("Idle",mSimpleIdleResource);
             if (loaderManager == null) {
-                mSimpleIdleResource.setIdleState(false);
-                loaderManager.initLoader(RecipeLoader.LOAD_RECIPE_LIST, null, this);
+                loaderManager.initLoader(RecipeLoader.LOAD_RECIPE_LIST, bundle, this);
             } else {
-                mSimpleIdleResource.setIdleState(false);
-                loaderManager.restartLoader(RecipeLoader.LOAD_RECIPE_LIST, null, this);
+                loaderManager.restartLoader(RecipeLoader.LOAD_RECIPE_LIST, bundle, this);
             }
         }
     }
@@ -109,12 +110,19 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     @Override
-    public Loader<ArrayList<Recipe>> onCreateLoader(int id, Bundle args) {
+    public Loader<ArrayList<Recipe>> onCreateLoader(int id, final Bundle args) {
         return new AsyncTaskLoader<ArrayList<Recipe>>(this) {
             ArrayList<Recipe>mRecipe = null;
+            SimpleIdleResource simpleIdleResource = null;
             @Override
             protected void onStartLoading() {
                 super.onStartLoading();
+                if(args.getParcelable("Idle") != null){
+                    simpleIdleResource = args.getParcelable("Idle");
+                    if(simpleIdleResource!= null){
+                        simpleIdleResource.setIdleState(false);
+                    }
+                }
                 showIndicator();
                 if(mRecipe != null){
                     deliverResult(mRecipe);
@@ -166,5 +174,23 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         Intent intent = new Intent(this,StepListActivity.class);
         intent.putExtra(getString(R.string.RECIPE),recipe);
         startActivity(intent);
+    }
+    @VisibleForTesting
+    public String getIngredients(){
+        ArrayList<Ingredient> ingredients = mRecipes.get(0).getIngredients();
+        StringBuilder sb = new StringBuilder();
+        for (Ingredient ingredient : ingredients) {
+            String prefix = " ";
+            sb.append(ingredient.getQuantity());
+            sb.append(prefix);
+            sb.append(ingredient.getMeasure());
+            sb.append(prefix);
+            sb.append(ingredient.getIngredient());
+            sb.append(", ");
+
+        }
+        //Delete the last comma
+        sb.deleteCharAt(sb.length() - 2);
+        return sb.toString();
     }
 }
