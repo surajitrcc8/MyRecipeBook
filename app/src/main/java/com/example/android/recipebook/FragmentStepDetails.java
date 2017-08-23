@@ -108,29 +108,13 @@ public class FragmentStepDetails extends Fragment implements View.OnClickListene
                     }
                 }
             }
-
-            //Check if this the first time we are creating this player view.
-            if(this.mExoPlayer == null){
-                initiateExoPlayer(Uri.parse(mStep.getVideoURL()));
-            }
-            else{
-                //Player already exists so add to view.
-                mExoPlayerView.setPlayer(mExoPlayer);
-                //Get the previous player state
-                if(savedInstanceState != null && savedInstanceState.containsKey(PLAYER_STATE)) {
-                    mExoPlayer.setPlayWhenReady(savedInstanceState.getBoolean(PLAYER_STATE));
-                }
-            }
         }
-
         return view;
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        //Store the current player state
-        outState.putBoolean(PLAYER_STATE,mExoPlayer.getPlayWhenReady());
         if(mPreviousButton != null && mNextButton != null) {
             outState.putBoolean(getString(R.string.PREV_ENABLED), mPreviousButton.isEnabled());
             outState.putBoolean(getString(R.string.NEXT_ENABLED), mNextButton.isEnabled());
@@ -138,9 +122,17 @@ public class FragmentStepDetails extends Fragment implements View.OnClickListene
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        if(this.mExoPlayer == null){
+            initiateExoPlayer(Uri.parse(mStep.getVideoURL()));
+        }
+    }
+
+    @Override
     public void onStop() {
         super.onStop();
-        this.mExoPlayer.setPlayWhenReady(false);
+        releaseExoPlayer();
     }
     @Override
     public void onDestroy() {

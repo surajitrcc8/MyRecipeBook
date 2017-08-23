@@ -35,9 +35,11 @@ public class RecipeBookAppWidget extends AppWidgetProvider {
     }
     public static void setWidgetRecipeName(String name,Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds){
         mRecipeName = name;
-        mListRemoteViews.setTextViewText(R.id.tv_widget_recipe,mRecipeName);
-        for (int appWidgetId : appWidgetIds) {
-            appWidgetManager.updateAppWidget(appWidgetId, mListRemoteViews);
+        if(mListRemoteViews != null) {
+            mListRemoteViews.setTextViewText(R.id.tv_widget_recipe, mRecipeName);
+            for (int appWidgetId : appWidgetIds) {
+                appWidgetManager.updateAppWidget(appWidgetId, mListRemoteViews);
+            }
         }
     }
     private static RemoteViews getListWidget(Context context) {

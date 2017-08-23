@@ -49,10 +49,12 @@ public class StepListAdapter extends RecyclerView.Adapter<StepListAdapter.StepVi
             holder.bindingView.executePendingBindings();
         }
     }
-    @BindingAdapter("app:srcUrl")
-    public static void loadGridImage(ImageView image, String imageUrl){
-        if(imageUrl.length() > 2) {
-            GlideApp.with(image.getContext()).load(new VideoThumbnailUrl(imageUrl)).placeholder(R.drawable.no_image).error(R.drawable.no_image).into(image);
+    @BindingAdapter(value={"srcImageUrlRecipe", "srcVideoUrlRecipe"}, requireAll=false)
+    public static void loadGridImage(ImageView image, String imageUrl, String videoUrl){
+        if(imageUrl.length() >= 1){
+            GlideApp.with(image.getContext()).load(imageUrl).placeholder(R.drawable.no_image).into(image);
+        }else{
+            GlideApp.with(image.getContext()).load(new VideoThumbnailUrl(videoUrl)).placeholder(R.drawable.no_image).into(image);
         }
     }
     @Override

@@ -2,15 +2,14 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 <FrameLayout
-
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.example.android.recipebook.MainActivity">
-
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_recipe_list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"></android.support.v7.widget.RecyclerView>
+        android:layout_height="match_parent"
+        ></android.support.v7.widget.RecyclerView>
     <ProgressBar
         android:id="@+id/pb_recipe_list"
         android:layout_width="@dimen/dp42"
@@ -21,10 +20,9 @@
         android:id="@+id/tv_recipe_list_error"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="Not able to get recipe list!"
+        android:text="@string/recipe_load_error"
         android:layout_gravity="center"
         style="@android:style/TextAppearance.DeviceDefault.Large"
         android:visibility="invisible"/>
-
 </FrameLayout>
 </layout>

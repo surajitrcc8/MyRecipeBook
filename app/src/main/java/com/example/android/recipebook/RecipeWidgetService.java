@@ -12,10 +12,7 @@ import android.widget.RemoteViewsService;
 import com.example.android.recipebook.model.Ingredient;
 import com.example.android.recipebook.model.Recipe;
 import com.example.android.recipebook.util.RecipeUtil;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 /**
@@ -47,12 +44,12 @@ class RecipeWidgetFactory implements RemoteViewsService.RemoteViewsFactory {
 
     @Override
     public void onDataSetChanged() {
-        Type listType = new TypeToken<ArrayList<Recipe>>() {
-        }.getType();
-        ArrayList<Recipe>recipes = new GsonBuilder().create().fromJson(RecipeUtil.loadJSONFromAsset(context), listType);
-
+//        Type listType = new TypeToken<ArrayList<Recipe>>() {
+//        }.getType();
+//        ArrayList<Recipe>recipes = new GsonBuilder().create().fromJson(RecipeUtil.loadJSONFromAsset(context), listType);
+        ArrayList<Recipe>recipes = RecipeUtil.getRecipe(MainActivity.BASE_URL);
         SharedPreferences sharedPreferences = context.getSharedPreferences(context.getString(R.string.RECIPE),Context.MODE_PRIVATE);
-        String recipeName = sharedPreferences.getString(context.getString(R.string.RECIPE),"");
+        String recipeName = sharedPreferences.getString(context.getString(R.string.RECIPE),recipes.get(0).getName());
         for(Recipe recipe : recipes){
             if(recipe.getName().equals(recipeName)){
                 mRecipe = recipe;
@@ -68,6 +65,20 @@ class RecipeWidgetFactory implements RemoteViewsService.RemoteViewsFactory {
         ComponentName componentName = new ComponentName(context,RecipeBookAppWidget.class);
         int []appWidgetIds = appWidgetManager.getAppWidgetIds(componentName);
         RecipeBookAppWidget.setWidgetRecipeName(mRecipe.getName(),context,appWidgetManager,appWidgetIds);
+//        new AsyncTask<String,Void,ArrayList<Recipe>>(){
+//
+//            @Override
+//            protected ArrayList<Recipe> doInBackground(String... params) {
+//                return RecipeUtil.getRecipe(params[0]);
+//            }
+//            @Override
+//            protected void onPostExecute(ArrayList<Recipe> recipes) {
+//                super.onPostExecute(recipes);
+//
+//            }
+//        }.execute(MainActivity.BASE_URL);
+
+
     }
 
     @Override

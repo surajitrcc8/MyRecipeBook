@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Recipe Book</string>
     <string name="ingredients">Ingredients :</string>
-
+    <string name="recipe_load_error">Not able to get recipe list!</string>
 
     <string name="title_step_list">Steps</string>
     <string name="title_step_detail">Step Details</string>

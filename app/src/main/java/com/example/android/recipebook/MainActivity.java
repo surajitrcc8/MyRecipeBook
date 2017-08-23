@@ -21,12 +21,8 @@ import com.example.android.recipebook.adapter.RecipeListAdapter;
 import com.example.android.recipebook.databinding.ActivityMainBinding;
 import com.example.android.recipebook.model.Ingredient;
 import com.example.android.recipebook.model.Recipe;
-import com.example.android.recipebook.util.RecipeLoader;
 import com.example.android.recipebook.util.RecipeUtil;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<ArrayList<Recipe>>,RecipeListAdapter.OnRecipeItemClicked {
@@ -42,6 +38,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private ActivityMainBinding mActivityMainBinding;
     private boolean isStop = false;
     private SimpleIdleResource mSimpleIdleResource;
+    private static final int LOAD_RECIPE_LIST = 1;
+    public static final String BASE_URL = "https://d17h27t6h515a5.cloudfront.net/topher/2017/May/59121517_baking/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,9 +66,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             Bundle bundle = new Bundle();
             bundle.putParcelable("Idle",mSimpleIdleResource);
             if (loaderManager == null) {
-                loaderManager.initLoader(RecipeLoader.LOAD_RECIPE_LIST, bundle, this);
+                loaderManager.initLoader(LOAD_RECIPE_LIST, bundle, this);
             } else {
-                loaderManager.restartLoader(RecipeLoader.LOAD_RECIPE_LIST, bundle, this);
+                loaderManager.restartLoader(LOAD_RECIPE_LIST, bundle, this);
             }
         }
     }
@@ -99,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         hideIndicator();
     }
     public void error(){
+        mRecipeListRecyclerView.setVisibility(View.INVISIBLE);
         mRecipeListErrorTextView.setVisibility(View.VISIBLE);
         hideIndicator();
     }
@@ -130,12 +129,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     forceLoad();
                 }
             }
-
             @Override
             public ArrayList<Recipe> loadInBackground() {
-                Type listType = new TypeToken<ArrayList<Recipe>>() {
-                }.getType();
-                mRecipe = new GsonBuilder().create().fromJson(RecipeUtil.loadJSONFromAsset(getApplicationContext()), listType);
+                mRecipe = RecipeUtil.getRecipe(BASE_URL);
                 return mRecipe;
             }
 

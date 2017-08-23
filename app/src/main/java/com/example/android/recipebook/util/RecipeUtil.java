@@ -6,8 +6,17 @@ import android.support.annotation.VisibleForTesting;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
+import com.example.android.recipebook.model.Recipe;
+import com.example.android.recipebook.service.RecipeServiceAPI;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.io.IOException;
-import java.io.InputStream;
+import java.util.ArrayList;
+
+import retrofit2.Call;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * Created by surajitbiswas on 8/7/17.
@@ -17,21 +26,6 @@ public class RecipeUtil {
 
     private static final String TAG = RecipeUtil.class.getSimpleName();
     private static int TILE_OFFSET = 4;
-    public static String loadJSONFromAsset(Context context) {
-        String json = null;
-        try {
-            InputStream is = context.getAssets().open("recipe_list.json");
-            int size = is.available();
-            byte[] buffer = new byte[size];
-            is.read(buffer);
-            is.close();
-            json = new String(buffer, "UTF-8");
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            return null;
-        }
-        return json;
-    }
     public static int getTileSpan(Context context){
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
         float deviceWidth = displayMetrics.widthPixels / displayMetrics.density;
@@ -72,6 +66,24 @@ public class RecipeUtil {
         final float scale = context.getResources().getDisplayMetrics().density;
         int pixel = (int) (dp * scale + 0.5f);
         return pixel;
+    }
+    public static ArrayList<Recipe> getRecipe(String baseUrl){
+        ArrayList<Recipe>mRecipes = null;
+        Gson gson = new GsonBuilder()
+                .setLenient()
+                .create();
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
+        RecipeServiceAPI recipeServiceAPI = retrofit.create(RecipeServiceAPI.class);
+        Call<ArrayList<Recipe>> call = recipeServiceAPI.getRecipes();
+        try {
+            mRecipes = call.execute().body();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return mRecipes;
     }
     @VisibleForTesting
     public static String getRecipe(){

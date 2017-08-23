@@ -55,11 +55,26 @@ public class RecipeListAdapter extends RecyclerView.Adapter<RecipeListAdapter.Re
         }
 
     }
-    @BindingAdapter("app:srcUrl")
-    public static void loadGridImage(ImageView image,String imageUrl){
-        if(imageUrl.length() > 2) {
-            GlideApp.with(image.getContext()).load(new VideoThumbnailUrl(imageUrl)).placeholder(R.drawable.no_image).into(image);
+    @BindingAdapter(value={"srcImageUrlRecipe", "srcVideoUrlRecipe"}, requireAll=false)
+    public static void loadGridImage(ImageView image,String imageUrl, String videoUrl){
+        if(imageUrl.length() >= 1){
+            GlideApp.with(image.getContext()).load(imageUrl).placeholder(R.drawable.no_image).into(image);
+        }else{
+            GlideApp.with(image.getContext()).load(new VideoThumbnailUrl(videoUrl)).placeholder(R.drawable.no_image).into(image);
         }
+//        String imageUrl = null;
+//        if(recipe.getImage().length() >= 1){
+//            imageUrl = recipe.getImage();
+//            GlideApp.with(image.getContext()).load(imageUrl).placeholder(R.drawable.no_image).into(image);
+//        }else{
+//            if(step.getThumbnailURL().length() >= 1){
+//                imageUrl = step.getThumbnailURL();
+//                GlideApp.with(image.getContext()).load(imageUrl).placeholder(R.drawable.no_image).into(image);
+//            }else{
+//                imageUrl = step.getVideoURL();
+//                GlideApp.with(image.getContext()).load(new VideoThumbnailUrl(imageUrl)).placeholder(R.drawable.no_image).into(image);
+//            }
+//        }
     }
     @Override
     public int getItemCount() {
@@ -69,7 +84,6 @@ public class RecipeListAdapter extends RecyclerView.Adapter<RecipeListAdapter.Re
     public class RecipeViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         private ViewDataBinding bindingView;
-
         public RecipeViewHolder(View itemView) {
             super(itemView);
             bindingView = DataBindingUtil.bind(itemView);

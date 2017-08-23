@@ -11,7 +11,8 @@
         android:id="@+id/exo_player_view"
         android:layout_width="match_parent"
         android:layout_height="@dimen/video_height"
-        app:resize_mode="fixed_width">
+        app:resize_mode="fixed_width"
+        app:default_artwork="@drawable/no_image">
     </com.google.android.exoplayer2.ui.SimpleExoPlayerView>
     <TextView
         android:id="@+id/tv_step_instruction"
